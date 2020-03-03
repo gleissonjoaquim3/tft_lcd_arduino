@@ -1,198 +1,213 @@
-
+//Programa: Display LCD Touch TFT 3.5" com Arduino
+//Autor: Arduino e Cia
 #include <Arduino.h>
-#include "Adafruit_GFX.h"    // Adafruit's core graphics library
-#include "Adafruit_TFTLCD.h" // Adafruit's hardware-specific library
-#include "TouchScreen.h"
-#include "MCUFRIEND_kbv.h"     //Touchscreen library
-//#include <Fonts/Org_01.h>    //Include a different font
-//#include <EEPROM.h>         //Include the EEPROM library to score the highscore
+#include <MCUFRIEND_kbv.h>
+#include <Adafruit_GFX.h> //Biblioteca grafica
+#include <TouchScreen.h>  //Biblioteca Touch
 
-bool backsensed = false;
-bool resetsensed = false;
-
-//Sense touch trough these pins
-#define YP A3  // must be an analog pin
-#define XM A2  // must be an analog pin
-#define YM 9   // can be a digital pin
-#define XP 8   // can be a digital pin
+#define YP A3 // Y+ is on Analog1
+#define XM A2 // X- is on Analog2
+#define YM 9 // Y- is on Digital7
+#define XP 8 // X+ is on Digital6
 
 #define TS_MINX 118
 #define TS_MINY 92
 #define TS_MAXX 906
 #define TS_MAXY 951
-//Create the touchscreen object
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);  //(data,data,data,data,sensitivity);
 
-//Some of the tft pins
-#define LCD_CS A3
-#define LCD_CD A2
-#define LCD_WR A1
-#define LCD_RD A0
-// Optional, used to reset the display
-#define LCD_RESET A4
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-#define REDBAR_MINX 80
-#define GREENBAR_MINX 130
-#define BLUEBAR_MINX 180
-#define BAR_MINY 30
-#define BAR_HEIGHT 250
-#define BAR_WIDTH 30
+#define LCD_RESET A4 //Pode ser conectado ao pino reset do Arduino
+#define LCD_CS A3   // Chip Select
+#define LCD_CD A2  // Command/Data
+#define LCD_WR A1  // LCD Write
+#define LCD_RD A0 // LCD Read
 
-//Create the tft object
+//Definicao de cores
+#define BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+#define ORANGE  0xFD20
+#define LIGHTGREY 0xC618 
+#define DARKGREY  0x7BEF
+
 MCUFRIEND_kbv tft;
 
-// Define some TFT readable colour codes to human readable names
-#define BLACK    0x0000
-//int BLUE = tft.color565(50, 50, 255);
-#define DARKBLUE 0x0010
-#define VIOLET   0x8888
-#define RED      0xF800
-#define GREEN    0x07E0
-#define CYAN     0x07FF
-#define MAGENTA  0xF81F
-#define YELLOW   0xFFE0
-#define WHITE    0xFFFF
-//#define GREY   tft.color565(64, 64, 64);
-#define GOLD     0xFEA0
-#define BROWN    0xA145
-#define SILVER   0xC618
-#define LIME     0x07E0
-#define ORANGE   0xFD20      /* 255, 165,   0 */
-#define BLUE     0x001F
-
-int currentpcolour;
-int tela_atual = 0;
-
-
-//Minimum and maximum pressure to sense the touch
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
 
-void tela_inicial()
+// Armazena o estado dos botões
+bool valor_botao1 = 0;
+bool valor_botao2 = 0;
+bool valor_botao3 = 0;
+
+
+void mostra_ligado(int x, int y)
 {
-
-  tft.fillScreen(ORANGE); // Plano de fundo
-  tft.drawRoundRect(0, 0, 479, 319, 8, WHITE);     //Borda da página
-
-  tft.fillRoundRect(140, 180, 200, 40, 10, WHITE); // Parte interna do botão
-  tft.drawRoundRect(140, 180, 200, 40, 10, BLACK);
-
-  tft.fillRoundRect(140, 130, 200, 40, 10, WHITE);   //RGB led
-  tft.drawRoundRect(140, 130, 200, 40, 10, BLACK);
-
-  tft.fillRoundRect(140, 80, 200, 40, 10, WHITE);
-  tft.drawRoundRect(140, 80, 200, 40, 10, BLACK); //Oscilloscope
-
-  tft.setCursor(110, 20);
-  tft.setTextSize(3);
   tft.setTextColor(BLACK);
-  tft.print("Escolha um modo :");
-  tft.setTextColor(BLACK);
-  tft.setCursor(175, 195);
-  tft.print("AUSENTE");
-  tft.setCursor(175, 145);
-  tft.print("OCUPADO");
-  tft.setCursor(150, 95);
-  tft.print("DISPONIVEL");
-  tft.setCursor(130, 280);
+  tft.setCursor(x, y);
+  tft.println("LIGADO");
+  delay(100);
+}
+
+void mostra_desligado(int x, int y)
+{
   tft.setTextColor(WHITE);
-  tft.print("APM TERMINALS");
-  //  delay(500);
-
+  tft.setCursor(x, y);
+  tft.println("DESLIGADO");
+  delay(100);
 }
 
-void voltar()  //Oscilloscope function
-{
-  tft.fillScreen(BLACK);
-  tft.fillRoundRect(5, 5, 50, 30, 8, BLUE);
-  tft.drawRoundRect(5, 5, 50, 30, 8, WHITE);
-  tft.setCursor(15, 15);
-  tft.print("<-");
-}
 
 void setup()
 {
-  tft.reset(); // Reset
-  tft.begin(tft.readID()); // Faz a leitura do núcleo tft_lcd
-  Serial.begin(9600); // Inicia o Serial 9600
-  Serial.println();
-  Serial.print("Lendo informações...");
-  delay(500);
-  Serial.println(tft.readID(), HEX);
-  tft.fillScreen(BLACK); // Fundo Preto
-  tft.setRotation(1); // Setada posição horizontal da tela
+  Serial.begin(9600);
 
-  tela_atual = 0;
+  //Definicao pinos dos leds
+  pinMode(45, OUTPUT); //Led vermelho
+  pinMode(49, OUTPUT); //Led verde
 
-  tft.setTextSize(3);
+  Serial.println(F("Teste do display LCD TFT"));
+  tft.reset();
+
+  //Mostra o tipo do controlador do display no Serial Monitor
+  uint16_t identifier = tft.readID();
+  Serial.print(F("Controlador do display: "));
+  Serial.println(identifier, HEX);
+
+  tft.begin(identifier);
+  tft.fillScreen(DARKGREY);
+  tft.setRotation(1);
+
+  //Tela Principal
   tft.setTextColor(WHITE);
-  tft.setCursor(50, 140);
-  tft.print("Carregando...");
+  tft.setTextSize(2);
+  tft.setCursor(80, 5);
+  tft.println("TRANSPORTE VAN APM TERMINALS");
 
-  tft.setTextColor(tft.color565(255, 255, 0));
-  tft.setCursor(30, 70);
-  tft.print("Feito por ");
+  tft.fillRoundRect(15, 40, 462, 50, 5, ORANGE);
+  tft.drawRoundRect(15, 40, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 40, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(25, 55);
+  tft.println("BERÇO - 1");
 
-  tft.setCursor(30, 100);
-  tft.print("Infra Eletrica :)");
-  delay(2000);
+  tft.fillRoundRect(15, 95, 462, 50, 5, ORANGE);
+  tft.drawRoundRect(15, 95, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 95, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(25, 110);
+  tft.println("BERÇO - 2");
 
-  tft.fillScreen(BLACK);
+  tft.fillRoundRect(15, 150, 462, 50, 5, ORANGE);
+  tft.drawRoundRect(15, 150, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 150, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setCursor(25, 165);
+  tft.println("BERÇO - 3");
 
-  tela_inicial();
-
+    //Mensagens desligado
+  tft.setTextColor(WHITE);
+  tft.setCursor(295, 55);
+  tft.println("DESLIGADO");
+  tft.setCursor(295, 110);
+  tft.println("DESLIGADO");
+  tft.setCursor(295, 165);
+  tft.println("DESLIGADO");
+  
 }
+
 void loop()
 {
-
-  digitalWrite(13, HIGH);
-  TSPoint p = ts.getPoint();     // Read touchscreen
-  digitalWrite(13, LOW);
-
+  TSPoint p = ts.getPoint();
   pinMode(XM, OUTPUT);
+  digitalWrite(XM, LOW);
   pinMode(YP, OUTPUT);
+  digitalWrite(YP, HIGH);
+  pinMode(YM, OUTPUT);
+  digitalWrite(YM, LOW);
+  pinMode(XP, OUTPUT);
+  digitalWrite(XP, HIGH);
 
-  if (tela_atual == 0)
+  if (p.z > MINPRESSURE && p.z < MAXPRESSURE)
   {
-    if (p.z > 10 && p.z < 1000)
+    p.x = tft.width() - (map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+    p.y = tft.height() - (map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+
+    //Mostra no serial monitor as coordenadas quando o 
+    //touch for acionado
+    Serial.print("py: ");
+    Serial.print(p.y);
+    Serial.print(" px: ");
+    Serial.println(p.x);
+
+    if (p.y < 140)
     {
-      if (p.x > 630 && p.x < 760 && p.y > 340 && p.y < 700)
+      //Botao led vermelho
+      if (p.x > 268 & p.x < 307)
       {
-        Serial.println("Mudança de tela");
+        if (valor_botao1 == 0)
+        {
+          tft.fillRoundRect(266, 96, 210, 48, 5, GREEN);
+          mostra_ligado(315, 110); // BERÇO 1
+          valor_botao1 = !valor_botao1;
+          //digitalWrite(45, HIGH);
+        }
+        else
+        {
+          tft.fillRoundRect(266, 96, 210, 48, 5, ORANGE);
+          mostra_desligado(295, 110); // BERÇO 1
+          valor_botao1 = !valor_botao1;
+          //digitalWrite(45, LOW);
+        }
+      }
 
-        tela_atual = 3;
-
-        tft.fillRoundRect(140, 80, 200, 40, 8, WHITE);
-        delay(70);
-
-        tft.fillRoundRect(140, 80, 200, 40, 10, BLACK);
-        tft.drawRoundRect(140, 80, 200, 40, 10, WHITE);
-
-        tft.setTextColor(WHITE);
-        tft.setCursor(150, 95);
-        tft.print("DISPONIVEL");
-        delay(1500);
-
-        voltar();
-
+      //Botao led verde
+      if (p.x > 180 & p.x < 252)
+      {
+        if (valor_botao2 == 0)
+        {
+          tft.fillRoundRect(266, 151, 210, 48, 5, GREEN);
+          mostra_ligado(315, 165); //BERÇO 2
+          valor_botao2 = !valor_botao2;
+          //digitalWrite(49, HIGH);
+        }
+        else
+        {
+          tft.fillRoundRect(266, 151, 210, 48, 5,  ORANGE);
+          mostra_desligado(295, 165);
+          valor_botao2 = !valor_botao2;
+          //digitalWrite(49, LOW);
+        }
+      }
+      if (p.x > 400 & p.x < 430)
+      {
+        if (valor_botao3 == 0)
+        {
+          tft.fillRoundRect(266, 41, 210, 48, 5, GREEN);
+          mostra_ligado(315, 55); // BERÇO 3
+          valor_botao3 = !valor_botao3;
+          //digitalWrite(49, HIGH);
+        }
+        else
+        {
+          tft.fillRoundRect(266, 41, 210, 48, 5,  ORANGE);
+          mostra_desligado(295, 55);
+          valor_botao3 = !valor_botao3;
+          //digitalWrite(49, LOW);
+        }
       }
     }
   }
-  if (p.z > MINPRESSURE && p.z < MAXPRESSURE)
-    if (p.y > 743 && p.x < 247 && p.x > 150 && p.y < 875)
-    {
-      tft.fillRoundRect(5, 5, 50, 30, 8, WHITE);
-      delay(70);
-      tft.fillRoundRect(5, 5, 50, 30, 8, BLUE);
-      tft.drawRoundRect(5, 5, 50, 30, 8, WHITE);
-      tft.setCursor(15, 15);
-      tft.print("<-");
-      delay(70);
-      tft.fillRoundRect(5, 5, 50, 30, 8, BLACK);
-      tela_atual = 0;
-      tela_inicial();
-      p.x = 160;
-      p.y = 760;
-      return;
-    }
+  //tft.fillRoundRect(0, 35, 479, 60, 5, WHITE);
 }

@@ -12,8 +12,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/home/gleissonjjc/projetos/tft_lcd_arduino/TFT_LCD_PJ1/.pio/build/uno/firmware.elf",
-            "toolchainBinDir": "/home/gleissonjjc/.platformio/packages/toolchain-atmelavr/bin",
+            "executable": "/home/gcardoso/projetos/tft_lcd_arduino/TFT_LCD_PJ1/.pio/build/uno/firmware.elf",
+            "toolchainBinDir": "/home/gcardoso/.platformio/packages/toolchain-atmelavr/bin",
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
@@ -24,8 +24,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/home/gleissonjjc/projetos/tft_lcd_arduino/TFT_LCD_PJ1/.pio/build/uno/firmware.elf",
-            "toolchainBinDir": "/home/gleissonjjc/.platformio/packages/toolchain-atmelavr/bin",
+            "executable": "/home/gcardoso/projetos/tft_lcd_arduino/TFT_LCD_PJ1/.pio/build/uno/firmware.elf",
+            "toolchainBinDir": "/home/gcardoso/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]
