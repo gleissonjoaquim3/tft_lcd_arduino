@@ -45,6 +45,8 @@ MCUFRIEND_kbv tft;
 bool valor_botao1 = 0;
 bool valor_botao2 = 0;
 bool valor_botao3 = 0;
+bool valor_botao4 = 0;
+bool valor_botao5 = 0;
 
 
 void mostra_ligado(int x, int y)
@@ -63,6 +65,67 @@ void mostra_desligado(int x, int y)
   delay(100);
 }
 
+void tela_chamados()
+{
+
+//Tela Principal
+  tft.setTextColor(WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(80, 5);
+  tft.println("TRANSPORTE VAN APM TERMINALS");
+
+  tft.fillRoundRect(15, 40, 462, 50, 5, ORANGE); // ESPAÇO 1
+  tft.drawRoundRect(15, 40, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 40, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(25, 55);
+  tft.println("PONTO - 1");
+
+  tft.fillRoundRect(15, 95, 462, 50, 5, ORANGE); // ESPAÇO 2
+  tft.drawRoundRect(15, 95, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 95, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(25, 110);
+  tft.println("PONTO - 2");
+
+  tft.fillRoundRect(15, 150, 462, 50, 5, ORANGE); // ESPAÇO 3
+  tft.drawRoundRect(15, 150, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 150, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setCursor(25, 165);
+  tft.println("PONTO - 3");
+
+  tft.fillRoundRect(15, 205, 462, 50, 5, ORANGE); // ESPAÇO 4
+  tft.drawRoundRect(15, 205, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 205, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setCursor(25, 165);
+  tft.println("PONTO - 4");
+
+  tft.fillRoundRect(15, 150, 462, 50, 5, ORANGE); // ESPAÇO 5
+  tft.drawRoundRect(15, 150, 462, 50, 5, WHITE);
+  tft.drawRoundRect(265, 150, 212, 50, 5, WHITE);
+  
+  tft.setTextColor(WHITE);
+  tft.setCursor(25, 165);
+  tft.println("PONTO - 5");
+
+    //Mensagens desligado
+  tft.setTextColor(WHITE);
+  tft.setCursor(295, 55);
+  tft.println("DESLIGADO");
+  tft.setCursor(295, 110);
+  tft.println("DESLIGADO");
+  tft.setCursor(295, 165);
+  tft.println("DESLIGADO");
+  
+}
 
 void setup()
 {
@@ -84,46 +147,7 @@ void setup()
   tft.fillScreen(DARKGREY);
   tft.setRotation(1);
 
-  //Tela Principal
-  tft.setTextColor(WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(80, 5);
-  tft.println("TRANSPORTE VAN APM TERMINALS");
-
-  tft.fillRoundRect(15, 40, 462, 50, 5, ORANGE);
-  tft.drawRoundRect(15, 40, 462, 50, 5, WHITE);
-  tft.drawRoundRect(265, 40, 212, 50, 5, WHITE);
-  
-  tft.setTextColor(WHITE);
-  tft.setTextSize(3);
-  tft.setCursor(25, 55);
-  tft.println("BERÇO - 1");
-
-  tft.fillRoundRect(15, 95, 462, 50, 5, ORANGE);
-  tft.drawRoundRect(15, 95, 462, 50, 5, WHITE);
-  tft.drawRoundRect(265, 95, 212, 50, 5, WHITE);
-  
-  tft.setTextColor(WHITE);
-  tft.setTextSize(3);
-  tft.setCursor(25, 110);
-  tft.println("BERÇO - 2");
-
-  tft.fillRoundRect(15, 150, 462, 50, 5, ORANGE);
-  tft.drawRoundRect(15, 150, 462, 50, 5, WHITE);
-  tft.drawRoundRect(265, 150, 212, 50, 5, WHITE);
-  
-  tft.setTextColor(WHITE);
-  tft.setCursor(25, 165);
-  tft.println("BERÇO - 3");
-
-    //Mensagens desligado
-  tft.setTextColor(WHITE);
-  tft.setCursor(295, 55);
-  tft.println("DESLIGADO");
-  tft.setCursor(295, 110);
-  tft.println("DESLIGADO");
-  tft.setCursor(295, 165);
-  tft.println("DESLIGADO");
+  tela_chamados();
   
 }
 
@@ -154,31 +178,31 @@ void loop()
     if (p.y < 140)
     {
       //Botao led vermelho
-      if (p.x > 268 & p.x < 307)
+      if (p.x > 268 & p.x < 307) // ESPAÇO 1
       {
         if (valor_botao1 == 0)
         {
           tft.fillRoundRect(266, 96, 210, 48, 5, GREEN);
-          mostra_ligado(315, 110); // BERÇO 1
+          mostra_ligado(315, 110);
           valor_botao1 = !valor_botao1;
           //digitalWrite(45, HIGH);
         }
         else
         {
           tft.fillRoundRect(266, 96, 210, 48, 5, ORANGE);
-          mostra_desligado(295, 110); // BERÇO 1
+          mostra_desligado(295, 110); 
           valor_botao1 = !valor_botao1;
           //digitalWrite(45, LOW);
         }
       }
 
       //Botao led verde
-      if (p.x > 180 & p.x < 252)
+      if (p.x > 180 & p.x < 252) // ESPAÇO 2
       {
         if (valor_botao2 == 0)
         {
           tft.fillRoundRect(266, 151, 210, 48, 5, GREEN);
-          mostra_ligado(315, 165); //BERÇO 2
+          mostra_ligado(315, 165); 
           valor_botao2 = !valor_botao2;
           //digitalWrite(49, HIGH);
         }
@@ -190,12 +214,12 @@ void loop()
           //digitalWrite(49, LOW);
         }
       }
-      if (p.x > 400 & p.x < 430)
+      if (p.x > 400 & p.x < 430) // ESPAÇO 3
       {
         if (valor_botao3 == 0)
         {
           tft.fillRoundRect(266, 41, 210, 48, 5, GREEN);
-          mostra_ligado(315, 55); // BERÇO 3
+          mostra_ligado(315, 55); 
           valor_botao3 = !valor_botao3;
           //digitalWrite(49, HIGH);
         }
@@ -207,6 +231,24 @@ void loop()
           //digitalWrite(49, LOW);
         }
       }
+      if (p.x > 400 & p.x < 430) // ESPAÇO 4
+      {
+        if (valor_botao3 == 0)
+        {
+          tft.fillRoundRect(266, 41, 210, 48, 5, GREEN);
+          mostra_ligado(315, 55); 
+          valor_botao3 = !valor_botao3;
+          //digitalWrite(49, HIGH);
+        }
+        else
+        {
+          tft.fillRoundRect(266, 41, 210, 48, 5,  ORANGE);
+          mostra_desligado(295, 55);
+          valor_botao3 = !valor_botao3;
+          //digitalWrite(49, LOW);
+        }
+      }
+      
     }
   }
   //tft.fillRoundRect(0, 35, 479, 60, 5, WHITE);
